@@ -8,15 +8,15 @@ class MapaDeBusqueda extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('TU UBIACIÓN'),
+        title: const Text('TU UBICACIÓN'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset('assets/images/mapa.png',
-              width: 200,
-              height: 200,
+              width: 700,
+              height: 700,
             )
           ]
         ),
