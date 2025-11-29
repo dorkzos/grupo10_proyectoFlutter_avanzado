@@ -76,7 +76,7 @@ class _InicioState extends State<Inicio> {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('CERRAR'),
+              child: const Text('CERRAR', style: TextStyle(color: Colors.red),),
               onPressed: () {
                 Navigator.of(context).pop();
               },
