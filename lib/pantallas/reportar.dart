@@ -92,7 +92,7 @@ body: Column(
                       backgroundColor: Colors.blue,
                     ),
                     onPressed: () {}, 
-                    child: const Text('ACOSO', style: TextStyle(color: Colors.white))),
+                    child: const Text('VANDALISMO', style: TextStyle(color: Colors.white))),
                 ),
               ),
               Expanded(
