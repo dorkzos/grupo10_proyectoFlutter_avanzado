@@ -36,7 +36,6 @@ class _InicioState extends State<Inicio> {
             children: [
               const Icon(Icons.info_outline, color: Colors.red),
               const SizedBox(width: 10),
-              // Titulo en mayúsculas
               Expanded(child: Text((reporte['tipo'] ?? 'REPORTE').toUpperCase(), style: const TextStyle(fontSize: 18))),
             ],
           ),
@@ -126,9 +125,9 @@ class _InicioState extends State<Inicio> {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: const Text(
-              'ACCESO RAPIDO',
+              'Accesos Rápidos',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 19,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -139,20 +138,55 @@ class _InicioState extends State<Inicio> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                // BOTÓN 1: LLAMADA EMERGENCIA
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    fixedSize: const Size(140, 120), 
+                    elevation: 4,
+                  ),
                   onPressed: _llamarDeEmergencia,
-                  child: const Text('Llamada de Emergencias', style: TextStyle(color: Colors.white)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center, // Centra verticalmente
+                    children: const [
+                      Icon(Icons.phone_in_talk, size: 40, color: Colors.white), // Icono grande
+                      SizedBox(height: 10), // Espacio entre icono y texto
+                      Text(
+                        'Llamada de\nEmergencias', 
+                        textAlign: TextAlign.center, // Centra el texto si tiene 2 líneas
+                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
+
+                // BOTÓN 2: NUEVO REPORTE (Estilo consistente)
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    fixedSize: const Size(140, 120),
+                    elevation: 4,
+                  ),
                   onPressed: (){
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => HacerReporte()),
                     );
                   },
-                  child: const Text('Realizar Nuevo Reporte', style: TextStyle(color: Colors.white)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.add_location_alt, size: 40, color: Colors.white),
+                      SizedBox(height: 10),
+                      Text(
+                        'Realizar Nuevo\nReporte', 
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -161,8 +195,8 @@ class _InicioState extends State<Inicio> {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: const Text(
-              'ÚLTIMOS REPORTES DEL DÍA',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              'Últimos Reportes Hoy',
+              style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
             ),
           ),
 
