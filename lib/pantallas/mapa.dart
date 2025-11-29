@@ -8,7 +8,7 @@ class MapaDeBusqueda extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('TU UBICACIÓN'),
+        title: const Text('TU UBICACIÓN', style: TextStyle(fontWeight: FontWeight.bold),),
       ),
       body: Center(
         child: Column(
