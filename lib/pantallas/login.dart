@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sesion2/componentes/barra_de_navegacion.dart';
+import 'package:proyectofinal_grupo10_avansado/componentes/barra_de_navegacion.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});

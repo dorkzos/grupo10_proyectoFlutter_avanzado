@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sesion2/pantallas/login.dart';
+import 'package:proyectofinal_grupo10_avansado/pantallas/login.dart';
 
 void main() {
   runApp(const MainApp());

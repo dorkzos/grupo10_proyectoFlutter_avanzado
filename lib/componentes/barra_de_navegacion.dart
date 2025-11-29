@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sesion2/pantallas/inicio.dart';
+import 'package:proyectofinal_grupo10_avansado/pantallas/inicio.dart';
+import 'package:proyectofinal_grupo10_avansado/pantallas/mapa.dart';
 
 
 class NavigationBarApp extends StatelessWidget {
@@ -76,9 +77,7 @@ class _NavigationExampleState extends State<NavigationExample> {
         Inicio(),
 
         /// PAGINA DE MAPA
-        const Center(
-          child: Text('MAPA'),
-        ),
+        MapaDeBusqueda(),
 
         /// Historial de reportes
         const Center(
