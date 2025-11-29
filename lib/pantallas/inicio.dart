@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proyectofinal_grupo10_avansado/pantallas/reportar.dart';
 import 'package:url_launcher/url_launcher.dart';
-// Asegúrate de que estas rutas sean correctas en tu proyecto
 import 'package:proyectofinal_grupo10_avansado/funciones/datos.dart';
 import 'package:proyectofinal_grupo10_avansado/funciones/calcular_tiempo.dart';
 
