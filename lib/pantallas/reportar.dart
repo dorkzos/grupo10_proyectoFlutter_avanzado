@@ -155,16 +155,18 @@ body: Column(
             ),
           ),
 
-
-          Center(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+          Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.red,),
+                  onPressed: () {}, 
+                  child: const Text('ENVIAR REPORTE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                ),
               ),
-              onPressed: () {}, 
-              child: const Text('ENVIAR REPORTE', style: TextStyle(color: Colors.white))),
+            ],
           ),
-
         ],
       ),
     );
