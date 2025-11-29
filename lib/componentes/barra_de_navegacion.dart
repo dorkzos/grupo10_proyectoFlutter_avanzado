@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:proyectofinal_grupo10_avansado/pantallas/historial.dart';
 import 'package:proyectofinal_grupo10_avansado/pantallas/inicio.dart';
 import 'package:proyectofinal_grupo10_avansado/pantallas/mapa.dart';
 import 'package:proyectofinal_grupo10_avansado/pantallas/perfil.dart';
@@ -80,9 +81,7 @@ class _NavigationExampleState extends State<NavigationExample> {
         MapaDeBusqueda(),
 
         /// Historial de reportes
-        const Center(
-          child: Text('REPORTES'),
-        ),
+        HistorialDeReportes(),
 
         // PERFIL PAGINA
          const Perfil(),
