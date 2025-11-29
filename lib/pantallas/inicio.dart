@@ -106,7 +106,7 @@ class _InicioState extends State<Inicio> {
   @override
   Widget build(BuildContext context) {
 
-    /// Mostrar Solo los Datos de la Fecha de Hoy
+    /// Mostrar Solo los Datos del dia de hoy
     final now = DateTime.now();
     String dia = now.day.toString().padLeft(2, '0');
     String mes = now.month.toString().padLeft(2, '0');
