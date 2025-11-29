@@ -40,7 +40,7 @@ class _InicioState extends State<Inicio> {
                   ),
                   onPressed: () {},
                   child: const 
-                    Text('Llamada a Emergencias',
+                    Text('Llamada de Emergencias',
                       style: TextStyle(
                         color: Colors.white,
                       ),
@@ -59,7 +59,7 @@ class _InicioState extends State<Inicio> {
                   );
                   },
                   child: const 
-                    Text('Realizar Reporte', 
+                    Text('Realizar Nuevo Reporte', 
                     style: TextStyle(
                       color: Colors.white,
                     ),
