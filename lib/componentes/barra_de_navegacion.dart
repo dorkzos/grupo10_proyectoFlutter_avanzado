@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyectofinal_grupo10_avansado/pantallas/inicio.dart';
 import 'package:proyectofinal_grupo10_avansado/pantallas/mapa.dart';
-
+import 'package:proyectofinal_grupo10_avansado/pantallas/perfil.dart';
 
 class NavigationBarApp extends StatelessWidget {
   const NavigationBarApp({super.key});
@@ -85,9 +85,7 @@ class _NavigationExampleState extends State<NavigationExample> {
         ),
 
         // PERFIL PAGINA
-        const Center(
-          child: Text('PERFIL'),
-        ),
+         const Perfil(),
       ][currentPageIndex],
     );
   }
