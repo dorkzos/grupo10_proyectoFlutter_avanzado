@@ -28,7 +28,6 @@ String calcularTiempoTranscurrido(String fechaStr, String horaStr) {
     } else if (diferencia.inDays < 7) {
       return 'Hace ${diferencia.inDays} día(s)';
     } else {
-      // Si pasó más de una semana, mostramos la fecha original
       return fechaStr; 
     }
   } catch (e) {
