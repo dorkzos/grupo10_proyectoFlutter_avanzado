@@ -1,4 +1,4 @@
-import 'dart:io'; // <--- IMPORTANTE PARA LEER LAS FOTOS DEL CELULAR
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:proyectofinal_grupo10_avansado/pantallas/reportar.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -95,13 +95,11 @@ class _InicioState extends State<Inicio> {
                             borderRadius: BorderRadius.circular(15),
                             border: Border.all(color: Colors.grey.shade300),
                             image: DecorationImage(
-                              // LÓGICA: Si es local usamos FileImage, si no AssetImage
                               image: reporte['es_local'] == 'si' && reporte['evidencia'] != ''
                                   ? FileImage(File(reporte['evidencia']!)) as ImageProvider
                                   : AssetImage('assets/images/${reporte['evidencia'] ?? 'placeholder.png'}'),
                               fit: BoxFit.cover,
                               onError: (exception, stackTrace) {
-                                // Evita crash si la imagen no existe
                               },
                             )
                           ),
@@ -197,7 +195,7 @@ class _InicioState extends State<Inicio> {
               children: [
                 Expanded(
                   child: _botonAccionSolido(
-                    titulo: "Emergencia",
+                    titulo: "Llamar a Emergencias",
                     subtitulo: "Llamada 110",
                     icono: Icons.phone_in_talk,
                     colorFondo: Colors.redAccent.shade700, 
@@ -209,7 +207,7 @@ class _InicioState extends State<Inicio> {
 
                 Expanded(
                   child: _botonAccionSolido(
-                    titulo: "Reportar",
+                    titulo: "Realizar Reporte",
                     subtitulo: "Incidente",
                     icono: Icons.add_location_alt_outlined,
                     colorFondo: Colors.amber.shade700, 
@@ -218,7 +216,6 @@ class _InicioState extends State<Inicio> {
                         context,
                         MaterialPageRoute(builder: (context) => HacerReporte()),
                       ).then((_) {
-                        // ESTO ES CLAVE: Al volver, actualizamos el estado para ver el nuevo reporte
                         setState(() {});
                       });
                     }
@@ -236,7 +233,7 @@ class _InicioState extends State<Inicio> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Reportes de Hoy',
+                  'Últimos Reporte del Día',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
                 ),
                 Container(
