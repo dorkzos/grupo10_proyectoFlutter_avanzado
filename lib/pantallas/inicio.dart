@@ -20,91 +20,133 @@ class _InicioState extends State<Inicio> {
     if (await canLaunchUrl(phoneUri)) {
       await launchUrl(phoneUri);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se puede abrir la aplicación de llamadas.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se puede abrir la aplicación de llamadas.')),
+        );
+      }
     }
   }
 
-  // --- NUEVAS FUNCIONES PARA EL DIALOG ---
+  // --- DIALOGO GRANDE (Estilo Anterior) ---
   void _mostrarDetalleReporte(BuildContext context, Map<String, String> reporte) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              const Icon(Icons.info_outline, color: Colors.red),
-              const SizedBox(width: 10),
-              Expanded(child: Text((reporte['tipo'] ?? 'REPORTE').toUpperCase(), style: const TextStyle(fontSize: 18))),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                _crearLineaDetalle("Usuario:", reporte['anonimo'] == 'Sí' ? 'Anónimo' : reporte['usuario']),
-                _crearLineaDetalle("Fecha:", reporte['dia']),
-                _crearLineaDetalle("Hora:", reporte['hora']),
-                _crearLineaDetalle("Ubicación:", reporte['ubicacion']),
-                const Divider(),
-                const Text(
-                  "Descripción:",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 5),
-                Text(reporte['reporte'] ?? 'Sin descripción'),
-                const SizedBox(height: 15),
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 10,
+          backgroundColor: Colors.white,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.85,
+            padding: const EdgeInsets.all(0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Cabecera Sólida
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                   decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.redAccent.withOpacity(0.1), // Color sólido suave
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
                   ),
                   child: Row(
                     children: [
-                      const SizedBox(width: 5),
+                      const Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 30),
+                      const SizedBox(width: 15),
                       Expanded(
-                        child: Image.asset('assets/images/${reporte['evidencia']}', fit: BoxFit.cover)
+                        child: Text(
+                          (reporte['tipo'] ?? 'DETALLE REPORTE').toUpperCase(),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.redAccent),
+                        ),
                       ),
                     ],
+                  ),
+                ),
+                
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(25),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _itemDetalle(Icons.person, "Usuario", reporte['anonimo'] == 'Sí' ? 'Anónimo' : reporte['usuario']),
+                        const Divider(height: 25),
+                        _itemDetalle(Icons.calendar_today, "Fecha", reporte['dia']),
+                        const Divider(height: 25),
+                        _itemDetalle(Icons.access_time, "Hora", reporte['hora']),
+                        const Divider(height: 25),
+                        _itemDetalle(Icons.location_on, "Ubicación", reporte['ubicacion']),
+                        const Divider(height: 25),
+                        
+                        const Text("Descripción:", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
+                        const SizedBox(height: 8),
+                        Text(reporte['reporte'] ?? 'Sin descripción', style: const TextStyle(fontSize: 16)),
+                        
+                        const SizedBox(height: 20),
+                        
+                        Container(
+                          width: double.infinity,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: Colors.grey.shade300),
+                            image: DecorationImage(
+                              image: AssetImage('assets/images/${reporte['evidencia']}'),
+                              fit: BoxFit.cover,
+                            )
+                          ),
+                          child: reporte['evidencia'] == null 
+                            ? const Center(child: Text("Sin evidencia visual"))
+                            : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(vertical: 12)
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('CERRAR', style: TextStyle(color: Colors.white)),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('CERRAR', style: TextStyle(color: Colors.red),),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
         );
       },
     );
   }
 
-  Widget _crearLineaDetalle(String etiqueta, String? valor) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: RichText(
-        text: TextSpan(
-          style: const TextStyle(color: Colors.black, fontSize: 14),
+  Widget _itemDetalle(IconData icon, String titulo, String? valor) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: Colors.blueGrey),
+        const SizedBox(width: 15),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextSpan(text: "$etiqueta ", style: const TextStyle(fontWeight: FontWeight.bold)),
-            TextSpan(text: valor ?? 'No especificado'),
+            Text(titulo, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+            Text(valor ?? 'No especificado', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
           ],
-        ),
-      ),
+        )
+      ],
     );
   }
-  // -------------------------------------
 
   @override
   Widget build(BuildContext context) {
-
-    /// Mostrar Solo los Datos del dia de hoy
     final now = DateTime.now();
     String dia = now.day.toString().padLeft(2, '0');
     String mes = now.month.toString().padLeft(2, '0');
@@ -116,183 +158,241 @@ class _InicioState extends State<Inicio> {
     }).toList().reversed.toList(); 
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('INICIO', style: TextStyle(fontWeight: FontWeight.bold) ),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        title: const Text(
+          'INICIO', 
+          style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1) 
+        ),
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          
           Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
             child: const Text(
-              'Accesos Rápidos',
-              style: TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
-              ),
+              'Acceciones Rápidas',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
             ),
           ),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // BOTÓN 1: LLAMADA EMERGENCIA
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    fixedSize: const Size(140, 120), 
-                    elevation: 4,
-                  ),
-                  onPressed: _llamarDeEmergencia,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center, // Centra verticalmente
-                    children: const [
-                      Icon(Icons.phone_in_talk, size: 40, color: Colors.white), // Icono grande
-                      SizedBox(height: 10), // Espacio entre icono y texto
-                      Text(
-                        'Llamada de\nEmergencias', 
-                        textAlign: TextAlign.center, // Centra el texto si tiene 2 líneas
-                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                Expanded(
+                  child: _botonAccionSolido(
+                    titulo: "Llamar a Emergencias",
+                    subtitulo: "Llamada 110",
+                    icono: Icons.phone_in_talk,
+                    colorFondo: Colors.redAccent.shade700, 
+                    onTap: _llamarDeEmergencia
                   ),
                 ),
 
-                // BOTÓN 2: NUEVO REPORTE (Estilo consistente)
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    fixedSize: const Size(140, 120),
-                    elevation: 4,
-                  ),
-                  onPressed: (){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => HacerReporte()),
-                    );
-                  },
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.add_location_alt, size: 40, color: Colors.white),
-                      SizedBox(height: 10),
-                      Text(
-                        'Realizar Nuevo\nReporte', 
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                const SizedBox(width: 15),
+
+                Expanded(
+                  child: _botonAccionSolido(
+                    titulo: "Realizar Reporte",
+                    subtitulo: "Nuevo Incidente",
+                    icono: Icons.add_location_alt_outlined,
+                    colorFondo: Colors.amber.shade600, 
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HacerReporte()),
+                      );
+                    }
                   ),
                 ),
               ],
             ),
           ),
 
+          const SizedBox(height: 25),
+
           Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: const Text(
-              'Últimos Reportes Hoy',
-              style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Últimos Reportes del Día',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: Text(fechaHoy, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                )
+              ],
             ),
           ),
+          
+          const SizedBox(height: 10),
 
-          /// LISTA DE NOTIFICACIONES DE REPORTES
           Expanded(
-            flex: 2,
             child: reportesDeHoy.isEmpty 
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.check_circle_outline, size: 60, color: Colors.green),
-                    SizedBox(height: 10),
-                    Text("No hay reportes hoy", style: TextStyle(color: Colors.grey)),
+                  children: [
+                    Icon(Icons.shield_outlined, size: 70, color: Colors.grey[300]),
+                    const SizedBox(height: 15),
+                    Text("Todo tranquilo por ahora", style: TextStyle(color: Colors.grey[500], fontSize: 16)),
                   ],
                 ),
               )
             : ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: reportesDeHoy.length,
-              itemBuilder: (context, index) {
-                final notificacion = reportesDeHoy[index];
-                
-                String tipo = (notificacion['tipo'] ?? 'Desconocido').toUpperCase();
-                String reporte = notificacion['reporte'] ?? '';
-                String usuario = notificacion['usuario'] ?? 'Anónimo';
-                if (notificacion['anonimo'] == 'Sí') {
-                  usuario = 'Reporte Anónimo';
-                }
-                String fecha = notificacion['dia'] ?? '';
-                String hora = notificacion['hora'] ?? '';
-
-                return Card(
-                  elevation: 2, 
-                  clipBehavior: Clip.hardEdge, 
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Colors.black12), 
-                  ),
-                  margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                itemCount: reportesDeHoy.length,
+                itemBuilder: (context, index) {
+                  final notificacion = reportesDeHoy[index];
                   
-                  child: InkWell(
-                    splashColor: Colors.blue.withAlpha(30),
-                    onTap: () {
-                      _mostrarDetalleReporte(context, notificacion);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          
-                          Expanded( 
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  tipo,
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                                ),
-                                const SizedBox(height: 5), 
-                                Text(
-                                  reporte, 
-                                  maxLines: 2, 
-                                  overflow: TextOverflow.ellipsis, 
-                                  style: const TextStyle(fontSize: 14, color: Colors.black87),
-                                ),
-                              ],
-                            ),
-                          ),
+                  String tipo = (notificacion['tipo'] ?? 'Desconocido').toUpperCase();
+                  String reporte = notificacion['reporte'] ?? '';
+                  String usuario = notificacion['usuario'] ?? 'Anónimo';
+                  if (notificacion['anonimo'] == 'Sí') usuario = 'Anónimo';
+                  String fecha = notificacion['dia'] ?? '';
+                  String hora = notificacion['hora'] ?? '';
 
-                          const SizedBox(width: 10), 
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 15),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        )
+                      ]
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(15),
+                        onTap: () => _mostrarDetalleReporte(context, notificacion),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Row(
                             children: [
-                              Text(
-                                usuario,
-                                style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                              Container(
+                                height: 50, width: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.notifications_active, color: Colors.amber),
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                calcularTiempoTranscurrido(fecha, hora), 
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                              const SizedBox(width: 15),
+                              
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      tipo,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      reporte,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+                                          child: Text(
+                                            calcularTiempoTranscurrido(fecha, hora),
+                                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
+
+                              const SizedBox(width: 4),
+                              Text(usuario, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+
                             ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _botonAccionSolido({
+    required String titulo, 
+    required String subtitulo, 
+    required IconData icono, 
+    required Color colorFondo, 
+    required VoidCallback onTap
+  }) {
+    return Container(
+      height: 120,
+      decoration: BoxDecoration(
+        color: colorFondo, 
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: colorFondo.withOpacity(0.4),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          )
+        ]
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Column( // MANTENEMOS COLUMNA (DISEÑO ANTERIOR)
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle
+                  ),
+                  child: Icon(icono, color: Colors.white, size: 24),
+                ),
+                const Spacer(),
+                Text(
+                  titulo,
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text(
+                  subtitulo,
+                  style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 12),
+                )
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
