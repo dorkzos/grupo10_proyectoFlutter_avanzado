@@ -1,4 +1,4 @@
-import 'dart:io'; // <--- IMPORTANTE: Necesario para mostrar las fotos que tomas
+import 'dart:io'; 
 import 'package:flutter/material.dart';
 import 'package:proyectofinal_grupo10_avansado/funciones/calcular_tiempo.dart';
 import 'package:proyectofinal_grupo10_avansado/funciones/datos.dart';
@@ -49,7 +49,6 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Cabecera
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                   decoration: BoxDecoration(
@@ -90,8 +89,7 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
                         Text(reporte['reporte'] ?? 'Sin descripción', style: const TextStyle(fontSize: 16, color: Colors.black54)),
                         
                         const SizedBox(height: 20),
-                        
-                        // --- IMAGEN CORREGIDA ---
+
                         Container(
                           width: double.infinity,
                           height: 200,
@@ -100,7 +98,6 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
                             borderRadius: BorderRadius.circular(15),
                             border: Border.all(color: Colors.grey.shade300),
                             image: DecorationImage(
-                              // LÓGICA: Si es local usamos FileImage, si no AssetImage
                               image: reporte['es_local'] == 'si' && reporte['evidencia'] != ''
                                   ? FileImage(File(reporte['evidencia']!)) as ImageProvider
                                   : AssetImage('assets/images/${reporte['evidencia'] ?? 'placeholder.png'}'),
@@ -193,7 +190,7 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
         },
         selectedColor: Colors.black,
         backgroundColor: Colors.white,
-        checkmarkColor: Colors.white, // Color del check blanco
+        checkmarkColor: Colors.white, 
         labelStyle: TextStyle(
           color: isSelected ? Colors.white : Colors.black,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal
