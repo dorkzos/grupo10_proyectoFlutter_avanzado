@@ -1,3 +1,4 @@
+import 'dart:io'; // <--- IMPORTANTE PARA LEER LAS FOTOS DEL CELULAR
 import 'package:flutter/material.dart';
 import 'package:proyectofinal_grupo10_avansado/pantallas/reportar.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -28,7 +29,7 @@ class _InicioState extends State<Inicio> {
     }
   }
 
-  // --- DIALOGO GRANDE (Estilo Anterior) ---
+  // --- DIALOGO GRANDE CORREGIDO (Muestra Assets o Fotos Locales) ---
   void _mostrarDetalleReporte(BuildContext context, Map<String, String> reporte) {
     showDialog(
       context: context,
@@ -47,7 +48,7 @@ class _InicioState extends State<Inicio> {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                   decoration: BoxDecoration(
-                    color: Colors.redAccent.withOpacity(0.1), // Color sólido suave
+                    color: Colors.redAccent.withOpacity(0.1),
                     borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
                   ),
                   child: Row(
@@ -85,6 +86,7 @@ class _InicioState extends State<Inicio> {
                         
                         const SizedBox(height: 20),
                         
+                        // --- CONTENEDOR DE IMAGEN CORREGIDO ---
                         Container(
                           width: double.infinity,
                           height: 200,
@@ -93,11 +95,17 @@ class _InicioState extends State<Inicio> {
                             borderRadius: BorderRadius.circular(15),
                             border: Border.all(color: Colors.grey.shade300),
                             image: DecorationImage(
-                              image: AssetImage('assets/images/${reporte['evidencia']}'),
+                              // LÓGICA: Si es local usamos FileImage, si no AssetImage
+                              image: reporte['es_local'] == 'si' && reporte['evidencia'] != ''
+                                  ? FileImage(File(reporte['evidencia']!)) as ImageProvider
+                                  : AssetImage('assets/images/${reporte['evidencia'] ?? 'placeholder.png'}'),
                               fit: BoxFit.cover,
+                              onError: (exception, stackTrace) {
+                                // Evita crash si la imagen no existe
+                              },
                             )
                           ),
-                          child: reporte['evidencia'] == null 
+                          child: (reporte['evidencia'] == null || reporte['evidencia'] == '')
                             ? const Center(child: Text("Sin evidencia visual"))
                             : null,
                         ),
@@ -147,12 +155,14 @@ class _InicioState extends State<Inicio> {
 
   @override
   Widget build(BuildContext context) {
+    // Obtenemos fecha de hoy
     final now = DateTime.now();
     String dia = now.day.toString().padLeft(2, '0');
     String mes = now.month.toString().padLeft(2, '0');
     String anio = now.year.toString();
     String fechaHoy = "$dia/$mes/$anio"; 
 
+    // Filtramos la lista global
     List<Map<String, String>> reportesDeHoy = historialReportes.where((elemento) {
       return elemento['dia'] == fechaHoy;
     }).toList().reversed.toList(); 
@@ -176,7 +186,7 @@ class _InicioState extends State<Inicio> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
             child: const Text(
-              'Acceciones Rápidas',
+              'Accesos Rápidos',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
             ),
           ),
@@ -187,7 +197,7 @@ class _InicioState extends State<Inicio> {
               children: [
                 Expanded(
                   child: _botonAccionSolido(
-                    titulo: "Llamar a Emergencias",
+                    titulo: "Emergencia",
                     subtitulo: "Llamada 110",
                     icono: Icons.phone_in_talk,
                     colorFondo: Colors.redAccent.shade700, 
@@ -199,15 +209,18 @@ class _InicioState extends State<Inicio> {
 
                 Expanded(
                   child: _botonAccionSolido(
-                    titulo: "Realizar Reporte",
-                    subtitulo: "Nuevo Incidente",
+                    titulo: "Reportar",
+                    subtitulo: "Incidente",
                     icono: Icons.add_location_alt_outlined,
-                    colorFondo: Colors.amber.shade600, 
+                    colorFondo: Colors.amber.shade700, 
                     onTap: (){
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => HacerReporte()),
-                      );
+                      ).then((_) {
+                        // ESTO ES CLAVE: Al volver, actualizamos el estado para ver el nuevo reporte
+                        setState(() {});
+                      });
                     }
                   ),
                 ),
@@ -223,12 +236,16 @@ class _InicioState extends State<Inicio> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Últimos Reportes del Día',
+                  'Reportes de Hoy',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  child: Text(fechaHoy, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  decoration: BoxDecoration(
+                    color: Colors.blue[50],
+                    borderRadius: BorderRadius.circular(20)
+                  ),
+                  child: Text(fechaHoy, style: TextStyle(color: Colors.blue[800], fontWeight: FontWeight.bold, fontSize: 13)),
                 )
               ],
             ),
@@ -283,6 +300,7 @@ class _InicioState extends State<Inicio> {
                           padding: const EdgeInsets.all(15.0),
                           child: Row(
                             children: [
+                              // Icono Circular
                               Container(
                                 height: 50, width: 50,
                                 decoration: BoxDecoration(
@@ -293,6 +311,7 @@ class _InicioState extends State<Inicio> {
                               ),
                               const SizedBox(width: 15),
                               
+                              // Texto Central
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,22 +330,37 @@ class _InicioState extends State<Inicio> {
                                     const SizedBox(height: 4),
                                     Row(
                                       children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
-                                          child: Text(
-                                            calcularTiempoTranscurrido(fecha, hora),
-                                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
+                                        Icon(Icons.person, size: 12, color: Colors.grey[400]),
+                                        const SizedBox(width: 4),
+                                        Text(usuario, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
                                       ],
                                     )
                                   ],
                                 ),
                               ),
 
-                              const SizedBox(width: 4),
-                              Text(usuario, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
-
+                              // Tiempo
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    hora,
+                                    style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green[50],
+                                      borderRadius: BorderRadius.circular(8)
+                                    ),
+                                    child: Text(
+                                      calcularTiempoTranscurrido(fecha, hora),
+                                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green[700]),
+                                    ),
+                                  )
+                                ],
+                              )
                             ],
                           ),
                         ),
@@ -368,7 +402,7 @@ class _InicioState extends State<Inicio> {
           borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.all(15.0),
-            child: Column( // MANTENEMOS COLUMNA (DISEÑO ANTERIOR)
+            child: Column( 
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
