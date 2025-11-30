@@ -1,3 +1,4 @@
+import 'dart:io'; // <--- IMPORTANTE: Necesario para mostrar las fotos que tomas
 import 'package:flutter/material.dart';
 import 'package:proyectofinal_grupo10_avansado/funciones/calcular_tiempo.dart';
 import 'package:proyectofinal_grupo10_avansado/funciones/datos.dart';
@@ -11,7 +12,6 @@ class HistorialDeReportes extends StatefulWidget {
 
 class _HistorialDeReportesState extends State<HistorialDeReportes> {
   String _filtroSeleccionado = 'Todos';
-
   final TextEditingController _searchController = TextEditingController();
 
   List<Map<String, String>> _obtenerListaFiltrada() {
@@ -34,7 +34,7 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
     return lista;
   }
 
-  // --- DIALOGO MODERNO ---
+  // --- DIALOGO MODERNO CORREGIDO (Soporta Fotos Locales) ---
   void _mostrarDetalleReporte(BuildContext context, Map<String, String> reporte) {
     showDialog(
       context: context,
@@ -91,6 +91,7 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
                         
                         const SizedBox(height: 20),
                         
+                        // --- IMAGEN CORREGIDA ---
                         Container(
                           width: double.infinity,
                           height: 200,
@@ -99,12 +100,15 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
                             borderRadius: BorderRadius.circular(15),
                             border: Border.all(color: Colors.grey.shade300),
                             image: DecorationImage(
-                              image: AssetImage('assets/images/${reporte['evidencia']}'),
+                              // LÓGICA: Si es local usamos FileImage, si no AssetImage
+                              image: reporte['es_local'] == 'si' && reporte['evidencia'] != ''
+                                  ? FileImage(File(reporte['evidencia']!)) as ImageProvider
+                                  : AssetImage('assets/images/${reporte['evidencia'] ?? 'placeholder.png'}'),
                               fit: BoxFit.cover,
-                              onError: (exception, stackTrace) => const NetworkImage('https://via.placeholder.com/150'), 
+                              onError: (exception, stackTrace) {},
                             )
                           ),
-                          child: reporte['evidencia'] == null 
+                          child: (reporte['evidencia'] == null || reporte['evidencia'] == '')
                             ? const Center(child: Text("Sin evidencia"))
                             : null,
                         ),
@@ -119,7 +123,7 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
+                        backgroundColor: Colors.black87,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         padding: const EdgeInsets.symmetric(vertical: 15)
                       ),
@@ -151,7 +155,8 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
       ],
     );
   }
-  
+
+  // --- UI HELPERS ---
   Color _getColorPorTipo(String? tipo) {
     switch ((tipo ?? '').toUpperCase()) {
       case 'ROBO': return Colors.red;
@@ -188,7 +193,7 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
         },
         selectedColor: Colors.black,
         backgroundColor: Colors.white,
-        checkmarkColor: Colors.white,
+        checkmarkColor: Colors.white, // Color del check blanco
         labelStyle: TextStyle(
           color: isSelected ? Colors.white : Colors.black,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal
@@ -211,7 +216,7 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA), 
       appBar: AppBar(
-        title: const Text('HISTORIAL DE REPORTES', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: 1)),
+        title: const Text('HISTORIAL', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: 1)),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -238,10 +243,10 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
                   ),
                   child: TextField(
                     controller: _searchController,
-                    onChanged: (value) => setState((){}),
+                    onChanged: (value) => setState((){}), // Actualiza al escribir
                     decoration: const InputDecoration(
                       prefixIcon: Icon(Icons.search, color: Colors.grey),
-                      hintText: 'Buscar Reporte...',
+                      hintText: 'Buscar incidentes...',
                       hintStyle: TextStyle(color: Colors.grey),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
@@ -251,7 +256,7 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
                 
                 const SizedBox(height: 15),
                 
-                // Filtro
+                // Chips de Filtro
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
