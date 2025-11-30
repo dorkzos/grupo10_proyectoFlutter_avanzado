@@ -11,14 +11,13 @@ class NavigationBarApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // --- TEMA GLOBAL PARA TODA LA APP ---
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.blue, // Color base para toda la app
-        scaffoldBackgroundColor: const Color(0xFFF5F7FA), // El fondo gris suave que usamos en las otras pantallas
+        colorSchemeSeed: Colors.blue, 
+        scaffoldBackgroundColor: const Color(0xFFF5F7FA),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
-          surfaceTintColor: Colors.white, // Evita cambio de color al scrollear
+          surfaceTintColor: Colors.white, 
         ),
       ),
       home: const NavigationExample()
