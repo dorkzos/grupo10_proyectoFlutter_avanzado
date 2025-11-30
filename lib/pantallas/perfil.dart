@@ -4,7 +4,6 @@ import 'package:proyectofinal_grupo10_avansado/componentes/ayuda_soporte.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:proyectofinal_grupo10_avansado/pantallas/login.dart'; 
 
 class Perfil extends StatefulWidget {
   const Perfil({super.key});
@@ -97,15 +96,6 @@ class _PerfilState extends State<Perfil> {
         ),
       );
     }
-  }
-
-  // --- NUEVA FUNCIÓN: CERRAR SESIÓN ---
-  void _cerrarSesion() {
-    // Aquí podrías limpiar datos si quisieras, pero por ahora solo navegamos
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const Login()), // Regresa al Login
-    );
   }
 
   // --- LOGICA IMAGEN ---
