@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proyectofinal_grupo10_avansado/componentes/barra_de_navegacion.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // 1. IMPORTANTE: Importar esto
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -21,7 +22,14 @@ class _LoginState extends State<Login> {
     {'nombre': 'Admin', 'codigo': 'CODIGO2025'}
   ];
 
-  void _iniciarSesion() {
+  // 2. NUEVA FUNCIÓN: Guarda el nombre para que el Perfil lo lea
+  Future<void> _guardarUsuarioActivo(String nombreUsuario) async {
+    final prefs = await SharedPreferences.getInstance();
+    // Usamos la misma CLAVE que usaste en perfil.dart ('user_name_key')
+    await prefs.setString('user_name_key', nombreUsuario);
+  }
+
+  void _iniciarSesion() async { // Convertimos a async
     String usuarioIngresado = _usuarioController.text.trim();
     String codigoIngresado = _codigoController.text.trim();
 
@@ -39,13 +47,20 @@ class _LoginState extends State<Login> {
       for (var usuario in usuariosRegistrados) {
         if (usuario['codigo'] == codigoIngresado) {
           credencialesValidas = true;
+          // Si encontramos al usuario en la lista, usamos ese nombre exacto
+          nombreReal = usuario['nombre']!; 
           break;
         }
       }
     }
 
     if (credencialesValidas) {
+      // 3. GUARDAMOS EL DATO ANTES DE NAVEGAR
+      await _guardarUsuarioActivo(nombreReal);
+
       _mostrarSnack("¡Bienvenido, $nombreReal!", Colors.green);
+      
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -120,8 +135,10 @@ class _LoginState extends State<Login> {
                     SizedBox(width: 15),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async { // Async aquí también
                           if (nuevoNombreCtrl.text.isNotEmpty && nuevoCodigoCtrl.text.isNotEmpty) {
+                            
+                            // 4. GUARDAR EN LA LISTA TEMPORAL
                             setState(() {
                               usuariosRegistrados.add({
                                 'nombre': nuevoNombreCtrl.text.trim(),
@@ -130,6 +147,12 @@ class _LoginState extends State<Login> {
                               _usuarioController.text = nuevoNombreCtrl.text;
                               _codigoController.text = nuevoCodigoCtrl.text;
                             });
+
+                            // 5. GUARDAR EN MEMORIA (SHAREDPREFERENCES)
+                            // Así, si entra al perfil, ya saldrá este nombre
+                            await _guardarUsuarioActivo(nuevoNombreCtrl.text.trim());
+
+                            if (!mounted) return;
                             Navigator.pop(context);
                             _mostrarSnack("¡Registro Exitoso!", Colors.blue);
                           }
