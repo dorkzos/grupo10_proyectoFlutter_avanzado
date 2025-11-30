@@ -9,9 +9,19 @@ class NavigationBarApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: NavigationExample()
+      // --- TEMA GLOBAL PARA TODA LA APP ---
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.blue, // Color base para toda la app
+        scaffoldBackgroundColor: const Color(0xFFF5F7FA), // El fondo gris suave que usamos en las otras pantallas
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white, // Evita cambio de color al scrollear
+        ),
+      ),
+      home: const NavigationExample()
     );
   }
 }
@@ -28,64 +38,66 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-        indicatorColor: Colors.grey.shade400,
-        selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
-          // Inicio
-          NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
-            label: 'Inicio',
-          ),
-
-          // Mapa
-          NavigationDestination(
-            selectedIcon: Icon(Icons.map),
-            icon: Icon(Icons.map_outlined),
-            label: 'Mapa',
-          ),
-
-          // Reportes
-          NavigationDestination(
-            selectedIcon: Icon(Icons.article),
-            icon: Icon(Icons.article_outlined),
-            label: 'Reportes',
-          ),
-
-          // Perfil
-          NavigationDestination(
-            selectedIcon: Icon(Icons.person),
-            icon: Icon(Icons.person_outline),
-            label: 'Perfil',
-          ),
-        ],
-      ),
-
-      ///
-      /// CUERPO DE LA BARRA DE NAVEGACIÓN
-      ///
-      body: <Widget>[
-
+      body: [
         /// PAGINA DE INICIO
-        Inicio(),
+        const Inicio(),
 
         /// PAGINA DE MAPA
-        MapaDeBusqueda(),
+        const MapaDeBusqueda(),
 
-        /// Historial de reportes
-        HistorialDeReportes(),
+        /// HISTORIAL
+        const HistorialDeReportes(),
 
-        // PERFIL PAGINA
-         const Perfil(),
+        /// PERFIL
+        const Perfil(),
       ][currentPageIndex],
+
+      // --- BARRA DE NAVEGACIÓN MODERNA ---
+      bottomNavigationBar: Container(
+        child: NavigationBar(
+          onDestinationSelected: (int index) {
+            setState(() {
+              currentPageIndex = index;
+            });
+          },
+          selectedIndex: currentPageIndex,
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          indicatorColor: Colors.blue.shade100, 
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          height: 70,
+          destinations: const <Widget>[
+            // Inicio
+            NavigationDestination(
+              selectedIcon: Icon(Icons.home, color: Colors.blueAccent), 
+              icon: Icon(Icons.home_outlined, color: Colors.grey), 
+              label: 'Inicio',
+            ),
+
+            // Mapa
+            NavigationDestination(
+              selectedIcon: Icon(Icons.map, color: Colors.blueAccent),
+              icon: Icon(Icons.map_outlined, color: Colors.grey),
+              label: 'Mapa',
+            ),
+
+            // Reportes
+            NavigationDestination(
+              selectedIcon: Icon(Icons.article, color: Colors.blueAccent),
+              icon: Icon(Icons.article_outlined, color: Colors.grey),
+              label: 'Reportes',
+            ),
+
+            // Perfil
+            NavigationDestination(
+              selectedIcon: Icon(Icons.person, color: Colors.blueAccent),
+              icon: Icon(Icons.person_outline, color: Colors.grey),
+              label: 'Perfil',
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
