@@ -114,33 +114,6 @@ class AyudaSoporte extends StatelessWidget {
               icon: Icons.person,
               color: Colors.purple,
             ),
-
-            const SizedBox(height: 30),
-
-            // --- FOOTER: CONTACTO ---
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.blueAccent.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Colors.blueAccent.withOpacity(0.3))
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.support_agent, color: Colors.blueAccent, size: 30),
-                  const SizedBox(width: 15),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("¿Necesitas más ayuda?", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent)),
-                        Text("Contáctanos: soporte@policia.bo", style: TextStyle(fontSize: 12, color: Colors.black54)),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
             const SizedBox(height: 20),
           ],
         ),
@@ -168,7 +141,7 @@ class AyudaSoporte extends StatelessWidget {
         ]
       ),
       child: Theme(
-        data: ThemeData().copyWith(dividerColor: Colors.transparent), // Quita la línea divisoria por defecto
+        data: ThemeData().copyWith(dividerColor: Colors.transparent), 
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           leading: Container(
