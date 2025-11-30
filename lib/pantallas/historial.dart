@@ -10,117 +10,216 @@ class HistorialDeReportes extends StatefulWidget {
 }
 
 class _HistorialDeReportesState extends State<HistorialDeReportes> {
-  
-  late List<Map<String, String>> listaActualizada = historialReportes.reversed.toList();
-  // --- NUEVAS FUNCIONES PARA EL DIALOG ---
+  String _filtroSeleccionado = 'Todos';
+
+  final TextEditingController _searchController = TextEditingController();
+
+  List<Map<String, String>> _obtenerListaFiltrada() {
+    List<Map<String, String>> lista = historialReportes.reversed.toList();
+
+    if (_filtroSeleccionado != 'Todos') {
+      lista = lista.where((item) => 
+        (item['tipo'] ?? '').toUpperCase() == _filtroSeleccionado.toUpperCase()
+      ).toList();
+    }
+
+    String busqueda = _searchController.text.toLowerCase();
+    if (busqueda.isNotEmpty) {
+      lista = lista.where((item) => 
+        (item['reporte'] ?? '').toLowerCase().contains(busqueda) ||
+        (item['tipo'] ?? '').toLowerCase().contains(busqueda)
+      ).toList();
+    }
+
+    return lista;
+  }
+
+  // --- DIALOGO MODERNO ---
   void _mostrarDetalleReporte(BuildContext context, Map<String, String> reporte) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              const Icon(Icons.info_outline, color: Colors.red),
-              const SizedBox(width: 10),
-              Expanded(child: Text((reporte['tipo'] ?? 'REPORTE').toUpperCase(), style: const TextStyle(fontSize: 18))),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                _crearLineaDetalle("Usuario:", reporte['anonimo'] == 'Sí' ? 'Anónimo' : reporte['usuario']),
-                _crearLineaDetalle("Fecha:", reporte['dia']),
-                _crearLineaDetalle("Hora:", reporte['hora']),
-                _crearLineaDetalle("Ubicación:", reporte['ubicacion']),
-                const Divider(),
-                const Text(
-                  "Descripción:",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 5),
-                Text(reporte['reporte'] ?? 'Sin descripción'),
-                const SizedBox(height: 15),
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 0,
+          backgroundColor: Colors.white,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.85,
+            padding: const EdgeInsets.all(0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Cabecera
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                   decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
+                    color: _getColorPorTipo(reporte['tipo']).withOpacity(0.1),
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
                   ),
                   child: Row(
                     children: [
-                      const SizedBox(width: 5),
+                      Icon(_getIconoPorTipo(reporte['tipo']), color: _getColorPorTipo(reporte['tipo']), size: 28),
+                      const SizedBox(width: 15),
                       Expanded(
-                        child: Image.asset('assets/images/${reporte['evidencia']}', fit: BoxFit.cover)
+                        child: Text(
+                          (reporte['tipo'] ?? 'DETALLE').toUpperCase(),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _getColorPorTipo(reporte['tipo'])),
+                        ),
                       ),
                     ],
+                  ),
+                ),
+                
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(25),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _itemDetalle(Icons.person, "Usuario", reporte['anonimo'] == 'Sí' ? 'Anónimo' : reporte['usuario']),
+                        const Divider(height: 25),
+                        _itemDetalle(Icons.calendar_today, "Fecha", reporte['dia']),
+                        const Divider(height: 25),
+                        _itemDetalle(Icons.access_time, "Hora", reporte['hora']),
+                        const Divider(height: 25),
+                        _itemDetalle(Icons.location_on, "Ubicación", reporte['ubicacion']),
+                        const Divider(height: 25),
+                        
+                        const Text("Descripción:", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+                        const SizedBox(height: 8),
+                        Text(reporte['reporte'] ?? 'Sin descripción', style: const TextStyle(fontSize: 16, color: Colors.black54)),
+                        
+                        const SizedBox(height: 20),
+                        
+                        Container(
+                          width: double.infinity,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: Colors.grey.shade300),
+                            image: DecorationImage(
+                              image: AssetImage('assets/images/${reporte['evidencia']}'),
+                              fit: BoxFit.cover,
+                              onError: (exception, stackTrace) => const NetworkImage('https://via.placeholder.com/150'), 
+                            )
+                          ),
+                          child: reporte['evidencia'] == null 
+                            ? const Center(child: Text("Sin evidencia"))
+                            : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 15)
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('CERRAR', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('CERRAR', style: TextStyle(color: Colors.red),),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
         );
       },
     );
   }
 
-  Widget _crearLineaDetalle(String etiqueta, String? valor) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: RichText(
-        text: TextSpan(
-          style: const TextStyle(color: Colors.black, fontSize: 14),
+  Widget _itemDetalle(IconData icon, String titulo, String? valor) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: Colors.grey[600]),
+        const SizedBox(width: 15),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextSpan(text: "$etiqueta ", style: const TextStyle(fontWeight: FontWeight.bold)),
-            TextSpan(text: valor ?? 'No especificado'),
+            Text(titulo, style: TextStyle(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.bold)),
+            Text(valor ?? '---', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)),
           ],
-        ),
-      ),
+        )
+      ],
     );
   }
+  
+  Color _getColorPorTipo(String? tipo) {
+    switch ((tipo ?? '').toUpperCase()) {
+      case 'ROBO': return Colors.red;
+      case 'INCENDIO': return Colors.orange;
+      case 'ACCIDENTE': return Colors.blue;
+      case 'PELEA': return Colors.purple;
+      case 'VANDALISMO': return Colors.brown;
+      default: return Colors.blueGrey;
+    }
+  }
 
-  // LOGICA DE FILTROS
-  Widget _buildFilterChip(String label, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      child: FilterChip(
+  IconData _getIconoPorTipo(String? tipo) {
+    switch ((tipo ?? '').toUpperCase()) {
+      case 'ROBO': return Icons.warning_amber_rounded;
+      case 'INCENDIO': return Icons.local_fire_department;
+      case 'ACCIDENTE': return Icons.car_crash;
+      case 'PELEA': return Icons.sports_mma;
+      case 'VANDALISMO': return Icons.broken_image;
+      default: return Icons.info;
+    }
+  }
+
+  Widget _buildFilterChip(String label) {
+    bool isSelected = _filtroSeleccionado == label;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: ChoiceChip(
         label: Text(label),
-        labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.black87,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
         selected: isSelected,
         onSelected: (bool selected) {
-          // Aquí iría la lógica de filtro
+          setState(() {
+            _filtroSeleccionado = label;
+          });
         },
+        selectedColor: Colors.black,
         backgroundColor: Colors.white,
-        selectedColor: Colors.blue,
         checkmarkColor: Colors.white,
+        labelStyle: TextStyle(
+          color: isSelected ? Colors.white : Colors.black,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: isSelected ? Colors.transparent : Colors.grey.shade300),
+          side: BorderSide(color: isSelected ? Colors.transparent : Colors.grey.shade300)
         ),
+        elevation: 0,
+        pressElevation: 0,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    
+    final listaMostrar = _obtenerListaFiltrada();
+
     return Scaffold(
-      backgroundColor: Colors.grey[100], 
+      backgroundColor: const Color(0xFFF5F7FA), 
       appBar: AppBar(
-        title: const Text('HISTORIAL DE REPORTES', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('HISTORIAL DE REPORTES', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: 1)),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        foregroundColor: Colors.black,
+        foregroundColor: Colors.black87,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: Colors.grey[200], height: 1),
+        ),
       ),
       body: Column(
         children: [
@@ -128,60 +227,41 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
           // --- SECCIÓN SUPERIOR: BUSCADOR Y FILTROS ---
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+            padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
             child: Column(
               children: [
-                IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100], // Un gris muy suave para el input
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const TextField(
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.search_rounded, color: Colors.blueGrey),
-                              hintText: 'Buscar reportes...',
-                              hintStyle: TextStyle(color: Colors.grey),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 4), 
-                      
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        onPressed: () {},
-                        child: const Icon(Icons.search, color: Colors.white),
-                      ),
-                    ],
+                // Buscador
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100], 
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) => setState((){}),
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.search, color: Colors.grey),
+                      hintText: 'Buscar Reporte...',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                    ),
                   ),
                 ),
                 
-                const SizedBox(height: 12),
+                const SizedBox(height: 15),
                 
+                // Filtro
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildFilterChip('Todos', true),
-                      _buildFilterChip('Robo', false),
-                      _buildFilterChip('Accidente', false),
-                      _buildFilterChip('Vandalismo', false),
-                      _buildFilterChip('Incendio', false),
-                      _buildFilterChip('Pelea', false),
+                      _buildFilterChip('Todos'),
+                      _buildFilterChip('Robo'),
+                      _buildFilterChip('Accidente'),
+                      _buildFilterChip('Incendio'),
+                      _buildFilterChip('Pelea'),
+                      _buildFilterChip('Vandalismo'),
                     ],
                   ),
                 ),
@@ -189,90 +269,119 @@ class _HistorialDeReportesState extends State<HistorialDeReportes> {
             ),
           ),
 
+          // --- LISTA DE REPORTES ---
           Expanded(
-            flex: 2,
-            child: listaActualizada.isEmpty 
+            child: listaMostrar.isEmpty 
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.folder_open, size: 60, color: Colors.grey),
-                    SizedBox(height: 10),
-                    Text("No hay historial disponible", style: TextStyle(color: Colors.grey)),
+                  children: [
+                    Icon(Icons.folder_off_outlined, size: 70, color: Colors.grey[300]),
+                    const SizedBox(height: 15),
+                    Text("No se encontraron reportes", style: TextStyle(color: Colors.grey[500], fontSize: 16)),
                   ],
                 ),
               )
             : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: listaActualizada.length,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              itemCount: listaMostrar.length,
               itemBuilder: (context, index) {
-                final notificacion = listaActualizada[index];
+                final notificacion = listaMostrar[index];
                 
-                String tipo = (notificacion['tipo'] ?? 'Desconocido').toUpperCase();
+                String tipo = (notificacion['tipo'] ?? 'Desconocido');
                 String reporte = notificacion['reporte'] ?? '';
                 String usuario = notificacion['usuario'] ?? 'Anónimo';
-                if (notificacion['anonimo'] == 'Sí') {
-                  usuario = 'Reporte Anónimo';
-                }
+                if (notificacion['anonimo'] == 'Sí') usuario = 'Anónimo';
                 String fecha = notificacion['dia'] ?? '';
                 String hora = notificacion['hora'] ?? '';
 
-                return Card(
-                  elevation: 2, 
-                  clipBehavior: Clip.hardEdge, 
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Colors.black12), 
-                  ),
-                  margin: const EdgeInsets.only(bottom: 10),
-                  
-                  child: InkWell(
-                    splashColor: Colors.blue.withAlpha(30),
-                    onTap: () {
-                      _mostrarDetalleReporte(context, notificacion);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          
-                          Expanded( 
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  tipo,
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                                ),
-                                const SizedBox(height: 5), 
-                                Text(
-                                  reporte, 
-                                  maxLines: 2, 
-                                  overflow: TextOverflow.ellipsis, 
-                                  style: const TextStyle(fontSize: 14, color: Colors.black87),
-                                ),
-                              ],
-                            ),
-                          ),
+                Color colorTema = _getColorPorTipo(tipo);
+                IconData iconoTema = _getIconoPorTipo(tipo);
 
-                          const SizedBox(width: 10), 
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                usuario,
-                                style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      )
+                    ]
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () => _mostrarDetalleReporte(context, notificacion),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Icono lateral con color de fondo
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: colorTema.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                calcularTiempoTranscurrido(fecha, hora), 
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                              child: Icon(iconoTema, color: colorTema, size: 24),
+                            ),
+                            const SizedBox(width: 15),
+                            
+                            // Info Central
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        tipo.toUpperCase(),
+                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+                                      ),
+                                      // Badge de tiempo
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[100],
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: Colors.grey.shade200)
+                                        ),
+                                        child: Text(
+                                          calcularTiempoTranscurrido(fecha, hora), 
+                                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey[700]),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    reporte, 
+                                    maxLines: 2, 
+                                    overflow: TextOverflow.ellipsis, 
+                                    style: TextStyle(fontSize: 13, color: Colors.grey[600], height: 1.3),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.person, size: 12, color: Colors.grey[400]),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        usuario,
+                                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
