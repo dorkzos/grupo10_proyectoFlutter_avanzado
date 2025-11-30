@@ -12,7 +12,6 @@ class _LoginState extends State<Login> {
   final TextEditingController _usuarioController = TextEditingController();
   final TextEditingController _codigoController = TextEditingController();
   
-  // Variable para controlar si se ve la contraseña o no
   bool _mostrarPassword = false; 
 
   // --- BASE DE DATOS SIMULADA ---
@@ -165,13 +164,12 @@ class _LoginState extends State<Login> {
     );
   }
 
-  // Widget auxiliar mejorado para aceptar sufijos y control de password
   Widget _buildModernTextField({
     required TextEditingController controller, 
     required String hint, 
     required IconData icon, 
     bool isPassword = false,
-    Widget? suffixIcon, // Parámetro opcional para el icono del ojo
+    Widget? suffixIcon, 
   }) {
     return TextField(
       controller: controller,
@@ -179,7 +177,7 @@ class _LoginState extends State<Login> {
       decoration: InputDecoration(
         labelText: hint,
         prefixIcon: Icon(icon, color: Colors.blueAccent),
-        suffixIcon: suffixIcon, // Aquí se coloca el botón de ver contraseña
+        suffixIcon: suffixIcon,
         filled: true,
         fillColor: Colors.grey[50],
         border: OutlineInputBorder(
@@ -204,7 +202,6 @@ class _LoginState extends State<Login> {
     return Scaffold(
       body: Stack(
         children: [
-          // 1. Fondo con Gradiente
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -219,14 +216,6 @@ class _LoginState extends State<Login> {
             ),
           ),
           
-          // 2. Elementos decorativos de fondo
-          Positioned(
-            top: -50,
-            right: -50,
-            child: CircleAvatar(radius: 100, backgroundColor: Colors.white.withOpacity(0.1)),
-          ),
-          
-          // 3. Contenido Principal
           Center(
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: 30),
@@ -284,7 +273,6 @@ class _LoginState extends State<Login> {
                         ),
                         SizedBox(height: 25),
                         
-                        // Campo Usuario
                         _buildModernTextField(
                           controller: _usuarioController, 
                           hint: 'Usuario', 
@@ -292,12 +280,11 @@ class _LoginState extends State<Login> {
                         ),
                         SizedBox(height: 15),
                         
-                        // Campo Contraseña CON botón de visibilidad
                         _buildModernTextField(
                           controller: _codigoController, 
                           hint: 'Contraseña', 
                           icon: Icons.lock, 
-                          isPassword: !_mostrarPassword, // Invierte el valor
+                          isPassword: !_mostrarPassword, 
                           suffixIcon: IconButton(
                             icon: Icon(
                               _mostrarPassword ? Icons.visibility : Icons.visibility_off,
@@ -311,7 +298,6 @@ class _LoginState extends State<Login> {
                           ),
                         ),
 
-                        // --- TEXTO DE AYUDA DEBAJO DE LA CONTRASEÑA ---
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0, left: 10),
                           child: Row(
